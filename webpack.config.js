@@ -1,7 +1,7 @@
 const path = require('path');
-// const webpack = require('webpack');
+const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const BrowserSyncPlugin = require('browser-sync-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   devtool: 'cheap-module-source-map',
@@ -11,12 +11,15 @@ module.exports = {
     ignored: /node_modules/,
   },
   entry: {
-    'css/main.css': './src/styles/main.scss',
-    'js/bundle.js': './src/index.jsx',
+    bundle: [
+      'babel-polyfill',
+      'react-hot-loader/patch',
+      path.resolve(__dirname, './src/index.jsx'),
+    ],
   },
   output: {
-    filename: '[name]',
-    path: path.resolve(__dirname, 'public'),
+    filename: 'assets/js/[name].js',
+    path: path.resolve(__dirname, './public'),
     publicPath: '/',
   },
   resolve: {
@@ -27,14 +30,13 @@ module.exports = {
       {
         test: /\.scss$/,
         exclude: /node_modules/,
-        use: ExtractTextPlugin.extract({
+        use: ['css-hot-loader'].concat(ExtractTextPlugin.extract({
           fallback: 'style-loader',
           use: [
             {
               loader: 'css-loader',
               options: {
                 sourceMap: true,
-                // minimize: true,
               },
             },
             {
@@ -50,68 +52,26 @@ module.exports = {
               },
             },
           ],
-
-        }),
+          
+        })),
       },
       {
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,
-        use: [{
-          loader: 'babel-loader',
-          query: {
-            presets: ['es2015', 'react', 'stage-3'],
-            plugins: [
-              'transform-runtime',
-              'transform-decorators-legacy',
-            ],
-          },
-        }, 'eslint-loader',
+        use: [
+          'babel-loader',
+          'eslint-loader',
         ],
       },
       {
-        test: /\.(woff2?)$/i,
+        test: /\.(gif|png|jpe?g|svg|woff2?|mp3|wav|ogg|webm|mp4|pdf)$/i,
         use: [
           {
             loader: 'file-loader',
             options: {
-              publicPath: '/public/',
-              outputPath: 'fonts/',
-              name: '[name].[ext]',
-              // useRelativePath: true,
-            },
-          },
-        ],
-      },
-      {
-        test: /\.(gif|png|jpe?g|svg)$/i,
-        use: [
-          {
-            loader: 'file-loader',
-            options: {
-              publicPath: '/public/',
-              outputPath: 'images/',
-              name: '[name].[ext]',
-              // useRelativePath: true,
-            },
-          }, {
-            loader: 'image-webpack-loader',
-            options: {
-              gifsicle: {
-                interlaced: false,
-              },
-              optipng: {
-                optimizationLevel: 7,
-              },
-              pngquant: {
-                quality: '80-90',
-                speed: 4,
-              },
-              mozjpeg: {
-                progressive: true,
-                quality: 80,
-              },
-              webp: {
-                quality: 75,
+              outputPath: 'assets/',
+              name(fileUrl) {
+                return toCorrectPath(fileUrl);
               },
             },
           },
@@ -124,16 +84,29 @@ module.exports = {
     compress: true,
     port: 3000,
     hot: true,
-    open: true
+    open: true,
+    overlay: {
+      warnings: false,
+      errors: false
+    },
   },
   plugins: [
-    new ExtractTextPlugin('[name]'),
-    new BrowserSyncPlugin({
-      host: 'localhost',
-      port: 3000,
-      server: {
-        baseDir: '',
-      },
+    new webpack.NoEmitOnErrorsPlugin(),
+    new webpack.HotModuleReplacementPlugin(),
+    new webpack.NamedModulesPlugin(),
+  
+    new ExtractTextPlugin({
+      filename: 'assets/css/main.css',
+    }),
+    
+    new HtmlWebpackPlugin({
+      template: path.resolve(__dirname, './index.html'),
     }),
   ],
 };
+
+function toCorrectPath(fileUrl) {
+  const posixFormat = fileUrl.replace(new RegExp('\\' + path.sep, 'g'), '/');
+  const urlPath = posixFormat.split(`src/`);
+  return (urlPath[1] && urlPath[1].length) ? `${urlPath[1]}?[hash]` : '[name].[ext]?[hash]';
+}

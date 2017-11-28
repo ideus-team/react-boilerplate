@@ -3,7 +3,7 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: url("#{$img-path}wrapper_bg.jpg") no-repeat 50% 50%;
+  background: #D1EDFF url("#{$img-path}/testDirectory/testImg.png") no-repeat;
   background-size: cover;
   text-align: center;
 }
@@ -24,4 +24,31 @@
 .desc {
   color: #c72429;
   font-size: 40px;
+}
+
+
+.sprite{
+  list-style-type: none;
+  display: flex;
+  justify-content: space-between;
+  padding: 0;
+  margin: 40px 0 0;
+
+  &__ico{
+    width: 80px;
+    height: 80px;
+    display: inline-block;
+
+    &.-ico_google{
+      background-image: url("#{$img-path}/icons/google-plus-ico.svg");
+    }
+
+    &.-ico_linkedin{
+      background-image: url("#{$img-path}/icons/linkedin-ico.svg");
+    }
+
+    &.-ico_instagram{
+      background-image: url("#{$img-path}/icons/instagram-ico.svg");
+    }
+  }
 }
