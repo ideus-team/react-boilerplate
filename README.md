@@ -41,9 +41,10 @@ root
 - optimize images
 - create svg sprite from icons *(disabled now)*
 
-*command:* `npm run prod` -  generate all assets for deploy
-*command:* `npm run build` - clean dist folder and generate all assets for deploy
-*command:* `npm run server` - create server for testing production build locally
+*command:* `npm run prod` -  generate all assets for deploy <br />
+*command:* `npm run build` - clean dist folder and generate all assets for deploy <br />
+*command:* `npm run server` - create server for testing production build locally <br />
+
 
 ***dist structure:***
 
